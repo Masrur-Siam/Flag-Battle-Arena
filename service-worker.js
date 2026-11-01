@@ -1,56 +1,28 @@
 /**
  * Flag Battle Arena - Offline Service Worker
- * Ensures 100% offline gameplay functionality
+ * Ensures 100% offline gameplay functionality with robust scope & cache management
  */
 
-const CACHE_NAME = 'flag-battle-arena-v1.0.0';
+const CACHE_NAME = 'flag-battle-arena-v1.1.0';
 
 const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/icon.svg',
-  '/css/style.css',
-  '/css/menu.css',
-  '/css/game.css',
-  '/css/responsive.css',
-  '/js/app.js',
-  '/js/navigation.js',
-  '/js/countries.js',
-  '/js/flag-selector.js',
-  '/js/game-engine.js',
-  '/js/physics-engine.js',
-  '/js/flag-character.js',
-  '/js/ai-controller.js',
-  '/js/camera-controller.js',
-  '/js/competition-manager.js',
-  '/js/tournament-manager.js',
-  '/js/audio-manager.js',
-  '/js/storage-manager.js',
-  '/competitions/sumo.js',
-  '/competitions/obstacle-race.js',
-  '/competitions/last-survivor.js',
-  '/competitions/tug-of-war.js',
-  '/competitions/rising-lava.js',
-  '/competitions/bowling.js',
-  '/competitions/jump-challenge.js',
-  '/competitions/downhill-race.js',
-  '/competitions/glass-bridge.js',
-  '/competitions/spin-battle.js',
-  '/competitions/tower-climb.js',
-  '/competitions/football-battle.js',
-  '/libraries/three.module.js'
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS).catch((err) => {
-        console.warn('Some assets failed to precache during install:', err);
+      const urls = PRECACHE_ASSETS.map((asset) => new URL(asset, self.registration.scope).href);
+      return cache.addAll(urls).catch((err) => {
+        console.warn('Some core assets failed to precache during install:', err);
       });
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -60,6 +32,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((name) => {
           if (name !== CACHE_NAME) {
+            console.log('Purging outdated service worker cache:', name);
             return caches.delete(name);
           }
         })
@@ -72,28 +45,54 @@ self.addEventListener('fetch', (event) => {
   // Ignore non-GET requests
   if (event.request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
+  // Ignore browser extensions or other protocols
+  if (!event.request.url.startsWith('http')) return;
 
-  // Cache-first strategy for local assets, fallback to network
+  // 1. Navigation requests (HTML pages): Network-First to prevent stale/broken HTML caching
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match(event.request).then((cached) => {
+            if (cached) return cached;
+            return caches.match(new URL('index.html', self.registration.scope).href).then((fallback) => {
+              return fallback || caches.match(self.registration.scope);
+            });
+          });
+        })
+    );
+    return;
+  }
+
+  // 2. Subresources (CSS, JS, images, audio, etc.): Cache-first with network fallback & runtime caching
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Fetch and update cache in background
+        // Revalidate in background for non-hashed resources
         fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
+          if (networkResponse && networkResponse.status === 200 && (networkResponse.type === 'basic' || networkResponse.type === 'cors')) {
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, networkResponse.clone());
             });
           }
         }).catch(() => {
-          // Offline, cached version already returned
+          // Offline, cached version returned
         });
         return cachedResponse;
       }
 
-      // If not in cache, fetch from network and store
+      // Fetch from network and store in cache
       return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+        if (!networkResponse || networkResponse.status !== 200 || (networkResponse.type !== 'basic' && networkResponse.type !== 'cors')) {
           return networkResponse;
         }
 
@@ -103,11 +102,6 @@ self.addEventListener('fetch', (event) => {
         });
 
         return networkResponse;
-      }).catch(() => {
-        // Fallback for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
       });
     })
   );

@@ -788,7 +788,9 @@ class App {
   setupPWA() {
     // 1. Register Service Worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js')
+      const swBase = (import.meta.env && import.meta.env.BASE_URL) || './';
+      const swUrl = `${swBase}service-worker.js`.replace(/\/\//g, '/');
+      navigator.serviceWorker.register(swUrl, { scope: swBase })
         .then(reg => console.log('Service Worker registered successfully:', reg.scope))
         .catch(err => console.warn('Service Worker registration failed:', err));
     }

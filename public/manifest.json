@@ -1,0 +1,33 @@
+{
+  "id": "/Flag-Battle-Arena/",
+  "name": "Flag Battle Arena",
+  "short_name": "FlagArena",
+  "description": "3D physics-based spectator simulation game where country flags compete in exciting mini-games and tournaments.",
+  "start_url": "/Flag-Battle-Arena/",
+  "scope": "/Flag-Battle-Arena/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0B0F19",
+  "theme_color": "#111827",
+  "categories": ["games", "simulation", "entertainment"],
+  "icons": [
+    {
+      "src": "/Flag-Battle-Arena/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/Flag-Battle-Arena/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/Flag-Battle-Arena/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
