@@ -1,0 +1,6 @@
+{
+  "name": "Flag Battle Arena",
+  "description": "3D physics-based spectator simulation game where country flags compete in exciting mini-games and tournaments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

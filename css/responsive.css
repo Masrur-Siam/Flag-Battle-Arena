@@ -1,0 +1,127 @@
+/**
+ * FLAG BATTLE ARENA - Mobile & Responsive Optimizations
+ * Optimized for Android phones, tablets, landscape and portrait orientations.
+ */
+
+/* Responsive Typography & Header */
+@media (max-width: 768px) {
+  .menu-header-bar {
+    padding: 10px 14px;
+  }
+
+  .brand-title {
+    font-size: 1.05rem;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-flags-row {
+    font-size: 1.8rem;
+  }
+
+  .setup-container {
+    padding: 14px;
+  }
+
+  .custom-mode-chips-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  }
+
+  .mode-chip-name {
+    font-size: 0.75rem;
+  }
+
+  /* In-Game HUD adjustments */
+  .game-top-bar {
+    padding: 8px 12px;
+  }
+
+  .game-mode-tag {
+    font-size: 0.85rem;
+  }
+
+  .game-timer-badge {
+    font-size: 0.85rem;
+    padding: 2px 6px;
+  }
+
+  .game-alive-pill {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+  }
+
+  .hud-btn {
+    padding: 5px 8px;
+    font-size: 0.75rem;
+  }
+
+  .game-bottom-bar {
+    padding: 8px 12px;
+  }
+
+  .hud-speed-btn, .hud-camera-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .game-leaderboard-sidebar {
+    width: 140px;
+    top: 50px;
+    left: 10px;
+    padding: 6px;
+  }
+
+  .hud-lb-flag {
+    font-size: 0.95rem;
+  }
+
+  .hud-lb-code {
+    font-size: 0.75rem;
+  }
+
+  .countdown-text {
+    font-size: 4rem;
+  }
+
+  /* Victory Modal on mobile */
+  .modal-card {
+    padding: 18px;
+  }
+
+  .victory-flag-emoji {
+    font-size: 3rem;
+  }
+
+  .victory-country-name {
+    font-size: 1.4rem;
+  }
+}
+
+/* Landscape Mode Preference for Competitions */
+@media (orientation: landscape) and (max-height: 500px) {
+  .game-top-bar {
+    padding: 4px 12px;
+  }
+
+  .game-bottom-bar {
+    padding: 4px 12px;
+  }
+
+  .game-leaderboard-sidebar {
+    top: 40px;
+    max-height: calc(100vh - 85px);
+  }
+}
+
+/* Safe Area Insets for modern notched Android/iOS devices */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .menu-header-bar, .game-top-bar {
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+
+  .game-bottom-bar {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}

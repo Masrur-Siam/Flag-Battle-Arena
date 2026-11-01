@@ -1,0 +1,493 @@
+/**
+ * FLAG BATTLE ARENA - In-Game Spectator HUD & Victory Modal
+ * Spectator controls, live leaderboard, dynamic score badges, and podium celebration.
+ */
+
+#screen-game {
+  background: transparent !important;
+  pointer-events: none; /* Allows click-through to 3D canvas where needed */
+}
+
+/* --- FRESH, MINIMAL & IMMERSIVE SPECTATOR HUD --- */
+
+/* Floating Top Center Pill (Status Capsule) */
+.fresh-hud-pill {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  background: rgba(15, 23, 42, 0.68);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  z-index: 25;
+  pointer-events: auto;
+  user-select: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fresh-pill-mode {
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+
+.fresh-pill-sep {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.8rem;
+}
+
+.fresh-pill-timer {
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.fresh-pill-alive {
+  color: #34D399;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.game-score-badge {
+  background: rgba(59, 130, 246, 0.25);
+  border: 1px solid var(--primary);
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #93C5FD;
+}
+
+/* Top Right Action Buttons */
+.fresh-top-actions {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 25;
+  pointer-events: auto;
+  transition: opacity 0.3s ease;
+}
+
+.fresh-action-btn {
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #F8FAFC;
+  padding: 7px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.18s ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.02em;
+}
+
+.fresh-action-btn:hover {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.fresh-btn-action-primary {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  border-color: #FCD34D;
+  color: #0F172A;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45);
+}
+
+.fresh-btn-action-primary:hover {
+  background: linear-gradient(135deg, #FBBF24, #B45309);
+  color: #000000;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.65);
+}
+
+.fresh-btn-danger {
+  color: #FCA5A5;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.fresh-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.35);
+  border-color: var(--accent-red);
+}
+
+/* Floating Collapsible Tools Dock */
+.fresh-tools-dock {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 26;
+  pointer-events: auto;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+  min-width: 270px;
+  animation: dockSlideDown 0.2s ease-out;
+}
+
+@keyframes dockSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fresh-dock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.fresh-dock-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.fresh-dock-close:hover {
+  color: #FFFFFF;
+}
+
+.fresh-dock-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fresh-dock-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-dim);
+  width: 55px;
+}
+
+.fresh-dock-btns {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.fresh-dock-row-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 10px;
+}
+
+.hud-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.hud-btn:hover {
+  background: #334155;
+}
+
+.hud-speed-btn, .hud-camera-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hud-speed-btn.active, .hud-camera-btn.active {
+  background: var(--primary);
+  color: #FFFFFF;
+  border-color: var(--primary);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+/* Subtle On-Screen Gesture Hint */
+.fresh-gesture-hint {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-dim);
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+  z-index: 15;
+  transition: opacity 1s ease;
+  user-select: none;
+}
+
+/* Live Dynamic Leaderboard Standings Drawer */
+.game-leaderboard-sidebar {
+  position: absolute;
+  top: 60px;
+  left: 16px;
+  width: 185px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  pointer-events: auto;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 25;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.game-leaderboard-sidebar.collapsed {
+  transform: translateX(-210px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Clean Mode (Hides HUD elements for 100% focused spectator enjoyment) */
+body.clean-screen-active .fresh-hud-pill,
+body.clean-screen-active .fresh-gesture-hint,
+body.clean-screen-active .fresh-tools-dock,
+body.clean-screen-active .game-leaderboard-sidebar {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-24px) translateX(-50%);
+}
+
+body.clean-screen-active .fresh-top-actions {
+  opacity: 0.25;
+}
+
+body.clean-screen-active .fresh-top-actions:hover {
+  opacity: 1;
+}
+
+.hud-lb-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 4px;
+}
+
+.hud-leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-bottom: 3px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.hud-leaderboard-item.alive {
+  color: var(--text-main);
+}
+
+.hud-leaderboard-item.eliminated {
+  opacity: 0.3;
+  text-decoration: line-through;
+  background: transparent;
+}
+
+.hud-lb-rank {
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: var(--accent-gold);
+  width: 20px;
+}
+
+.hud-lb-flag {
+  font-size: 1.25rem;
+}
+
+.hud-lb-code {
+  font-weight: 800;
+  flex: 1;
+}
+
+.hud-lb-status {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--accent-green);
+}
+
+.hud-leaderboard-item.eliminated .hud-lb-status {
+  color: var(--accent-red);
+}
+
+/* Countdown Overlay */
+.countdown-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.countdown-text {
+  font-size: 6rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: var(--accent-gold);
+  text-shadow: 0 0 30px rgba(245, 158, 11, 0.8), 0 4px 10px rgba(0, 0, 0, 0.8);
+  animation: countdownPulse 0.9s ease-out infinite;
+}
+
+@keyframes countdownPulse {
+  0% { transform: scale(0.6); opacity: 0; }
+  40% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1.0); opacity: 0.8; }
+}
+
+/* Victory Celebration Modal */
+.victory-card {
+  max-width: 500px;
+}
+
+.victory-crown {
+  font-size: 3rem;
+  margin-bottom: -10px;
+  animation: crownFloat 2s ease-in-out infinite alternate;
+}
+
+@keyframes crownFloat {
+  from { transform: translateY(0); }
+  to { transform: translateY(-8px); }
+}
+
+.victory-winner-wrap {
+  margin-bottom: 24px;
+}
+
+.victory-flag-emoji {
+  font-size: 4rem;
+  margin-bottom: 4px;
+}
+
+.victory-country-name {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #FFFFFF;
+}
+
+.victory-country-code {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent-gold);
+  margin-bottom: 8px;
+}
+
+.victory-title-badge {
+  display: inline-block;
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold-light);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+}
+
+/* Podium Steps */
+.victory-podium-list {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 0 10px;
+}
+
+.podium-step {
+  flex: 1;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.podium-step.step-1 {
+  border-color: var(--accent-gold);
+  background: rgba(245, 158, 11, 0.15);
+  transform: translateY(-12px);
+}
+
+.podium-rank {
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.podium-flag {
+  font-size: 1.8rem;
+  margin-bottom: 4px;
+}
+
+.podium-code {
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.victory-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}

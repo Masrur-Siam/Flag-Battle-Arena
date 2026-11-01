@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Flag Battle Arena</title>
+    <meta name="description" content="3D physics-based spectator simulation game where country flags compete in exciting mini-games and tournaments." />
+    <meta property="og:title" content="Flag Battle Arena" />
+    <meta property="og:description" content="3D physics-based spectator simulation game where country flags compete in exciting mini-games and tournaments." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Mobile & PWA Compliance -->
+    <meta name="theme-color" content="#111827" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FlagArena" />
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
+    <!-- Stylesheets (Pure CSS3) -->
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/menu.css" />
+    <link rel="stylesheet" href="/css/game.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+  </head>
+  <body>
+    <div id="app-root">
+      <!-- 3D WebGL Canvas Layer -->
+      <div id="game-canvas-container"></div>
+
+      <!-- SCREEN 1: MAIN MENU -->
+      <section id="screen-menu" class="app-screen active">
+        <header class="menu-header-bar">
+          <div class="brand-wrap">
+            <span style="font-size: 1.8rem;">🏁</span>
+            <span class="brand-title">FLAG BATTLE ARENA</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="btn-pwa-install" class="btn btn-secondary hidden" style="padding: 6px 12px; font-size: 0.8rem;">
+              ⬇ Install App
+            </button>
+          </div>
+        </header>
+
+        <div class="main-menu-content">
+          <div class="menu-hero">
+            <div class="hero-flags-row">🇺🇸 🇧🇷 🇯🇵 🇬🇧 🇩🇪 🇫🇷 🇦🇷</div>
+            <h1 class="hero-title">FLAG BATTLE ARENA</h1>
+            <p class="hero-subtitle">Autonomous 3D Physics Spectator Simulator</p>
+          </div>
+
+          <!-- Featured: Random Flag Circle Battle -->
+          <div class="random-circle-card">
+            <div class="random-circle-title">🔥 RANDOM CIRCLE FIGHT (লড়াই)</div>
+            <div class="random-circle-subtitle">যে সার্কেল থেকে নিচে পড়ে যাবে সে খতম! শেষ পর্যন্ত যে টিকে থাকবে সেই বিজয়ী!</div>
+            <div class="circle-count-selector">
+              <button class="circle-count-chip" data-count="4">4 Flags</button>
+              <button class="circle-count-chip active" data-count="8">8 Flags</button>
+              <button class="circle-count-chip" data-count="12">12 Flags</button>
+              <button class="circle-count-chip" data-count="16">16 Flags</button>
+              <button class="circle-count-chip" data-count="20">20 Flags</button>
+            </div>
+            <button id="btn-start-circle-battle" class="btn-start-circle-battle">
+              ⚔️ START RANDOM CIRCLE BATTLE
+            </button>
+            <button id="btn-open-custom-circle" class="btn btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.9rem; padding: 10px;">
+              🎯 Choose Specific Countries (A-Z Selection)
+            </button>
+          </div>
+
+          <div id="tournament-resume-banner" class="tournament-resume-banner hidden">
+            <span>🏆 Tournament in progress!</span>
+            <button id="btn-resume-tournament" class="btn btn-accent resume-btn">Resume</button>
+          </div>
+
+          <div class="menu-buttons-list">
+            <button id="btn-quick-battle" class="btn btn-primary menu-btn menu-btn-quick">
+              ⚡ QUICK ALL-MODE BATTLE
+            </button>
+            <button id="btn-menu-custom" class="btn btn-secondary menu-btn">
+              ⚙️ CUSTOM BATTLE
+            </button>
+            <button id="btn-menu-tournament" class="btn btn-accent menu-btn">
+              🏆 TOURNAMENT (4 - 64 FLAGS)
+            </button>
+            <button id="btn-menu-modes" class="btn btn-secondary menu-btn">
+              🎮 12 COMPETITION MODES
+            </button>
+            <button id="btn-menu-records" class="btn btn-secondary menu-btn">
+              📊 RECORDS & HALL OF FAME
+            </button>
+            <button id="btn-menu-settings" class="btn btn-secondary menu-btn">
+              🛠 SETTINGS
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: CUSTOM BATTLE -->
+      <section id="screen-custom-battle" class="app-screen hidden">
+        <header class="menu-header-bar">
+          <button class="btn btn-back">← Back</button>
+          <span class="brand-title">CUSTOM BATTLE SETUP</span>
+          <div style="width: 60px;"></div>
+        </header>
+
+        <div class="setup-container">
+          <h2 class="setup-title">1. Select Competition Mode</h2>
+          <div class="custom-mode-chips-grid">
+            <div class="custom-mode-chip active" data-mode="sumo">
+              <span class="mode-chip-icon">🤼</span>
+              <span class="mode-chip-name">Sumo Battle</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="obstacle-race">
+              <span class="mode-chip-icon">🏃</span>
+              <span class="mode-chip-name">Obstacle Race</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="last-survivor">
+              <span class="mode-chip-icon">🕳</span>
+              <span class="mode-chip-name">Last Flag Standing</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="tug-of-war">
+              <span class="mode-chip-icon">🪢</span>
+              <span class="mode-chip-name">Tug of War</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="rising-lava">
+              <span class="mode-chip-icon">🌋</span>
+              <span class="mode-chip-name">Rising Lava</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="bowling">
+              <span class="mode-chip-icon">🎳</span>
+              <span class="mode-chip-name">Bowling Challenge</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="jump-challenge">
+              <span class="mode-chip-icon">🧗</span>
+              <span class="mode-chip-name">Jump Challenge</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="downhill-race">
+              <span class="mode-chip-icon">⛷</span>
+              <span class="mode-chip-name">Downhill Race</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="glass-bridge">
+              <span class="mode-chip-icon">🧊</span>
+              <span class="mode-chip-name">Glass Bridge</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="spin-battle">
+              <span class="mode-chip-icon">🌀</span>
+              <span class="mode-chip-name">Spin Battle</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="tower-climb">
+              <span class="mode-chip-icon">🗼</span>
+              <span class="mode-chip-name">Tower Climb</span>
+            </div>
+            <div class="custom-mode-chip" data-mode="football-battle">
+              <span class="mode-chip-icon">⚽</span>
+              <span class="mode-chip-name">Football Battle</span>
+            </div>
+          </div>
+
+          <h2 class="setup-title">2. Choose Competitors (2 to 20 Flags)</h2>
+          <div id="custom-flag-selector-wrap"></div>
+
+          <div style="text-align: center; margin-top: 24px; padding-bottom: 40px;">
+            <button id="btn-start-custom-battle" class="btn btn-primary" style="padding: 16px 40px; font-size: 1.15rem;">
+              🚀 START BATTLE
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: TOURNAMENT -->
+      <section id="screen-tournament" class="app-screen hidden">
+        <header class="menu-header-bar">
+          <button class="btn btn-back">← Back</button>
+          <span class="brand-title">WORLD FLAG TOURNAMENT</span>
+          <div style="width: 60px;"></div>
+        </header>
+
+        <div class="setup-container">
+          <!-- Tournament Setup View -->
+          <div id="tournament-setup-view">
+            <h2 class="setup-title">Tournament Configuration</h2>
+            <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <label class="settings-label">Bracket Size</label>
+                <select id="tourney-size-select" class="search-input">
+                  <option value="4">4 Countries (Semifinals & Final)</option>
+                  <option value="8" selected>8 Countries (Quarterfinals & Final)</option>
+                  <option value="16">16 Countries (Round of 16)</option>
+                  <option value="32">32 Countries (Round of 32)</option>
+                  <option value="64">64 Countries (Grand World Cup)</option>
+                </select>
+              </div>
+
+              <div style="flex: 1; min-width: 200px;">
+                <label class="settings-label">Competition Mode Selection</label>
+                <select id="tourney-mode-select" class="search-input">
+                  <option value="random" selected>🎲 Random Mode Each Round</option>
+                  <option value="sumo">🤼 Sumo Battle</option>
+                  <option value="obstacle-race">🏃 Obstacle Race</option>
+                  <option value="last-survivor">🕳 Last Flag Standing</option>
+                  <option value="tug-of-war">🪢 Tug of War</option>
+                  <option value="football-battle">⚽ Football Battle</option>
+                </select>
+              </div>
+            </div>
+
+            <h2 class="setup-title">Select Participating Countries</h2>
+            <div id="tourney-flag-selector-wrap"></div>
+
+            <div style="text-align: center; margin-top: 24px;">
+              <button id="btn-generate-tournament" class="btn btn-accent" style="padding: 16px 36px; font-size: 1.1rem;">
+                🏆 GENERATE TOURNAMENT BRACKET
+              </button>
+            </div>
+          </div>
+
+          <!-- Tournament Bracket View -->
+          <div id="tournament-bracket-view" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h2 class="setup-title" style="margin-bottom: 0;">Tournament Bracket</h2>
+              <button id="btn-play-tourney-match" class="btn btn-primary">
+                ▶ Play Next Match
+              </button>
+            </div>
+
+            <div id="bracket-tree-container" class="bracket-tree-wrap"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: 12 MODES CATALOG -->
+      <section id="screen-modes" class="app-screen hidden">
+        <header class="menu-header-bar">
+          <button class="btn btn-back">← Back</button>
+          <span class="brand-title">12 COMPETITION MODES</span>
+          <div style="width: 60px;"></div>
+        </header>
+
+        <div class="setup-container">
+          <div class="modes-catalog-grid">
+            <div class="mode-catalog-card" data-mode="sumo">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🤼</span>
+                <span class="mode-card-title">Sumo Battle</span>
+              </div>
+              <p class="mode-card-desc">Push competitors outside a raised circular arena ring. Last flag inside wins.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="obstacle-race">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🏃</span>
+                <span class="mode-card-title">Obstacle Race</span>
+              </div>
+              <p class="mode-card-desc">Navigate through rotating windmill hammers, hurdles, and lateral bumpers to reach the finish line.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="last-survivor">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🕳</span>
+                <span class="mode-card-title">Last Flag Standing</span>
+              </div>
+              <p class="mode-card-desc">Floor tiles shake, flash red, and collapse into the abyss. Leap to safe tiles and survive.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="tug-of-war">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🪢</span>
+                <span class="mode-card-title">Tug of War</span>
+              </div>
+              <p class="mode-card-desc">Two teams battle with physics-based rope pulling across a mud pit trap. Rhythm bursts decide the victor.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="rising-lava">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🌋</span>
+                <span class="mode-card-title">Rising Lava</span>
+              </div>
+              <p class="mode-card-desc">Molten lava rises from below! Flags must continuously jump to higher stepped platforms.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="bowling">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🎳</span>
+                <span class="mode-card-title">Bowling Challenge</span>
+              </div>
+              <p class="mode-card-desc">Charge down the polished lane and knock down standing pins. Most pin knockdowns wins.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="jump-challenge">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🧗</span>
+                <span class="mode-card-title">Jump Challenge</span>
+              </div>
+              <p class="mode-card-desc">Ascending floating pillars across a deep canyon. Test jump timing, height, and landing balance.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="downhill-race">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">⛷</span>
+                <span class="mode-card-title">Downhill Race</span>
+              </div>
+              <p class="mode-card-desc">Roll down a steep physics slope with jumps, banked curves, and speed boosters.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="glass-bridge">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🧊</span>
+                <span class="mode-card-title">Glass Bridge</span>
+              </div>
+              <p class="mode-card-desc">Cross paired glass tiles. One tile holds firm; the other shatters. Remember safe steps!</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="spin-battle">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🌀</span>
+                <span class="mode-card-title">Spin Battle</span>
+              </div>
+              <p class="mode-card-desc">Spinning bumper flags collide at extreme angular speeds to launch rivals out of the bowl.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="tower-climb">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">🗼</span>
+                <span class="mode-card-title">Tower Climb</span>
+              </div>
+              <p class="mode-card-desc">Spiral obstacle tower with rotating sweeper arms. Climb the stairs to reach the summit crown.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+
+            <div class="mode-catalog-card" data-mode="football-battle">
+              <div class="mode-card-header">
+                <span class="mode-card-icon">⚽</span>
+                <span class="mode-card-title">Football Battle</span>
+              </div>
+              <p class="mode-card-desc">Autonomous team soccer with turf pitch, goal nets, goalkeepers, and physics ball striking.</p>
+              <button class="btn btn-primary btn-play-mode">Play Exhibition</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: RECORDS & STATS -->
+      <section id="screen-records" class="app-screen hidden">
+        <header class="menu-header-bar">
+          <button class="btn btn-back">← Back</button>
+          <span class="brand-title">RECORDS & HALL OF FAME</span>
+          <button id="btn-clear-records" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">
+            Reset
+          </button>
+        </header>
+
+        <div class="setup-container">
+          <div class="records-section">
+            <h2 class="records-section-title">🏆 Country Championship Standings</h2>
+            <div style="overflow-x: auto;">
+              <table class="records-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Country</th>
+                    <th>Battles</th>
+                    <th>Wins</th>
+                    <th>Win Rate</th>
+                  </tr>
+                </thead>
+                <tbody id="records-leaderboard-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="records-section">
+            <h2 class="records-section-title">📜 Recent Match History</h2>
+            <div id="records-history-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 6: SETTINGS -->
+      <section id="screen-settings" class="app-screen hidden">
+        <header class="menu-header-bar">
+          <button class="btn btn-back">← Back</button>
+          <span class="brand-title">SETTINGS</span>
+          <div style="width: 60px;"></div>
+        </header>
+
+        <div class="setup-container" style="max-width: 540px;">
+          <div class="settings-group">
+            <label class="settings-label">Graphics Quality</label>
+            <div class="settings-btn-row">
+              <button class="setting-btn setting-quality-btn" data-quality="low">Low (Battery)</button>
+              <button class="setting-btn setting-quality-btn" data-quality="medium">Medium</button>
+              <button class="setting-btn setting-quality-btn active" data-quality="high">High (Shadows)</button>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <label class="settings-label">Target Frame Rate</label>
+            <div class="settings-btn-row">
+              <button class="setting-btn setting-fps-btn" data-fps="30">30 FPS</button>
+              <button class="setting-btn setting-fps-btn active" data-fps="60">60 FPS</button>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <label class="settings-label">Sound Effects Volume</label>
+            <input type="range" id="setting-volume-slider" class="setting-slider" min="0" max="1" step="0.05" value="0.7">
+          </div>
+
+          <div class="settings-group" style="display: flex; align-items: center; justify-content: space-between;">
+            <label class="settings-label" style="margin-bottom: 0;">Mute All Audio</label>
+            <input type="checkbox" id="setting-mute-toggle" style="width: 20px; height: 20px;">
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 7: LIVE IN-GAME SPECTATOR ARENA (Fresh, Minimal & Immersive) -->
+      <section id="screen-game" class="app-screen hidden">
+        <!-- Floating Ultra-Clean Top Center Status Pill -->
+        <div id="hud-fresh-pill" class="fresh-hud-pill">
+          <span id="hud-mode-title" class="fresh-pill-mode">🤼 CIRCLE BATTLE</span>
+          <span class="fresh-pill-sep">•</span>
+          <span id="hud-timer" class="fresh-pill-timer">0:00</span>
+          <span class="fresh-pill-sep">•</span>
+          <span id="hud-alive-count" class="fresh-pill-alive">8 ALIVE</span>
+          <span id="hud-score-info" class="game-score-badge hidden"></span>
+        </div>
+
+        <!-- Top Right Floating Action Buttons -->
+        <div class="fresh-top-actions">
+          <button id="hud-btn-new-random" class="fresh-action-btn fresh-btn-action-primary" title="Start a fresh random fight">⚡ New Fight</button>
+          <button id="hud-btn-clean-toggle" class="fresh-action-btn" title="Toggle minimal clean screen">👁️ Clean View</button>
+          <button id="hud-btn-tools-toggle" class="fresh-action-btn" title="Camera, Speed & Controls">⚙️</button>
+          <button id="hud-btn-exit" class="fresh-action-btn fresh-btn-danger" title="Exit to menu">✕ Exit</button>
+        </div>
+
+        <!-- Collapsible Floating Tools & Camera Dock (Toggled via ⚙️ button) -->
+        <div id="hud-tools-dock" class="fresh-tools-dock hidden">
+          <div class="fresh-dock-header">
+            <span style="font-size: 0.8rem; font-weight: 800; color: var(--accent-gold); text-transform: uppercase;">Spectator Controls</span>
+            <button id="hud-btn-tools-close" class="fresh-dock-close">✕</button>
+          </div>
+
+          <div class="fresh-dock-row">
+            <span class="fresh-dock-label">Camera:</span>
+            <div class="fresh-dock-btns">
+              <button class="hud-camera-btn active" data-cam="auto">Auto</button>
+              <button class="hud-camera-btn" data-cam="wide">Wide</button>
+              <button class="hud-camera-btn" data-cam="close">Close</button>
+              <button class="hud-camera-btn" data-cam="top">Top</button>
+              <button class="hud-camera-btn" data-cam="follow">Leader</button>
+            </div>
+          </div>
+
+          <div class="fresh-dock-row">
+            <span class="fresh-dock-label">Speed:</span>
+            <div class="fresh-dock-btns">
+              <button class="hud-speed-btn" data-speed="0.5">0.5x</button>
+              <button class="hud-speed-btn active" data-speed="1.0">1x</button>
+              <button class="hud-speed-btn" data-speed="2.0">2x</button>
+              <button class="hud-speed-btn" data-speed="4.0">4x</button>
+            </div>
+          </div>
+
+          <div class="fresh-dock-row-actions">
+            <button id="hud-btn-pause" class="hud-btn" style="flex: 1;">⏸ Pause</button>
+            <button id="hud-btn-restart" class="hud-btn" style="flex: 1;">🔄 Restart</button>
+            <button id="hud-btn-audio" class="hud-btn">🔊</button>
+            <button id="hud-btn-fullscreen" class="hud-btn">⛶</button>
+            <button id="btn-toggle-leaderboard" class="hud-btn">📋 List</button>
+          </div>
+        </div>
+
+        <!-- Collapsible Live Leaderboard Standings Drawer -->
+        <div id="game-leaderboard-sidebar" class="game-leaderboard-sidebar collapsed">
+          <div class="hud-lb-title">
+            <span>Standings</span>
+            <button id="btn-close-leaderboard" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem;">✕</button>
+          </div>
+          <div id="hud-leaderboard-list"></div>
+        </div>
+
+        <!-- Subtle On-Screen Gesture Hint -->
+        <div id="fresh-gesture-hint" class="fresh-gesture-hint">
+          <span>👆 Drag to rotate 360° • Pinch / Wheel to zoom</span>
+        </div>
+
+        <!-- 3-2-1 Countdown Overlay -->
+        <div id="hud-countdown-overlay" class="countdown-overlay hidden">
+          <div id="hud-countdown-text" class="countdown-text">3</div>
+        </div>
+      </section>
+
+      <!-- MODAL: VICTORY CELEBRATION & PODIUM -->
+      <div id="modal-victory" class="modal-backdrop hidden">
+        <div class="modal-card victory-card">
+          <div id="victory-winner-card" class="victory-winner-wrap">
+            <div class="victory-crown">👑</div>
+            <div class="victory-flag-emoji">🏆</div>
+            <div class="victory-country-name">Champion</div>
+            <div class="victory-title-badge">Arena Victor</div>
+          </div>
+
+          <div id="victory-podium-list" class="victory-podium-list"></div>
+
+          <div class="victory-buttons">
+            <button id="btn-victory-rematch" class="btn btn-secondary">🔄 Rematch</button>
+            <button id="btn-victory-next-match" class="btn btn-accent hidden">▶ Next Match</button>
+            <button id="btn-victory-menu" class="btn btn-primary">Menu</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL: iOS Safari PWA Install Instructions -->
+      <div id="modal-ios-install" class="modal-backdrop hidden">
+        <div class="modal-card">
+          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 12px;">Install Flag Battle Arena on iOS</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">
+            1. Tap the <strong>Share</strong> icon in the Safari toolbar.<br />
+            2. Scroll down and tap <strong>Add to Home Screen</strong>.
+          </p>
+          <button id="btn-close-ios-modal" class="btn btn-secondary" style="width: 100%;">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Script Entry Point -->
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>

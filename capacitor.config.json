@@ -1,0 +1,14 @@
+{
+  "appId": "com.masrur.flagbattlearena",
+  "appName": "Flag Battle Arena",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}
